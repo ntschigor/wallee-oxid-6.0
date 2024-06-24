@@ -93,9 +93,11 @@ class PaymentService extends AbstractService {
 		
 		foreach ($paymentList as $payment) {
 			/* @var $payment \OxidEsales\Eshop\Application\Model\Payment */
-			if (!in_array($payment->getId(), $existing_found)) {
-				self::disablePaymentMethod($payment->getId());
-			}
+            if (in_array($payment->getId(), $existing_found)) {
+                self::setPaymentMethodActiveState($payment->getId(), 1);
+            } else {
+                self::setPaymentMethodActiveState($payment->getId(), 0);
+            }
 		}
 	}
 	
@@ -118,17 +120,18 @@ class PaymentService extends AbstractService {
 		$query->setFilter($filter);
 		return $query;
 	}
-	
-	/**
-	 *
-	 * @param $paymentId
-	 * @throws \Exception
-	 */
-	private static function disablePaymentMethod($paymentId){
+
+    /**
+     * @param     $paymentId
+     * @param int $activeState
+     *
+     * @throws \Exception
+     */
+	private static function setPaymentMethodActiveState($paymentId, int $activeState = 0){
 		$payment = oxNew(\OxidEsales\Eshop\Application\Model\Payment::class);
 		/* @var $payment \OxidEsales\Eshop\Application\Model\Payment */
 		if ($payment->load($paymentId)) {
-			$payment->oxpayments__oxactive = new \OxidEsales\Eshop\Core\Field(0);
+			$payment->oxpayments__oxactive = new \OxidEsales\Eshop\Core\Field($activeState);
 			$payment->save();
 		}
 	}
