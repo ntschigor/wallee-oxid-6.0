@@ -299,6 +299,11 @@ class Order extends Order_parent {
 	}
 
 	public function isWleOrder($basket = null){
+
+        if ($this->isAdmin()) {
+            return false;
+        }
+        
 		$paymentType = $this->getFieldData('oxpaymenttype');
 		if (empty($paymentType)) {
 			if ($this->getBasket()) {
@@ -308,6 +313,7 @@ class Order extends Order_parent {
 				$paymentType = $basket->getPaymentId();
 			}
 		}
+
 		return substr($paymentType, 0, strlen(WalleeModule::PAYMENT_PREFIX)) === WalleeModule::PAYMENT_PREFIX;
 	}
 
